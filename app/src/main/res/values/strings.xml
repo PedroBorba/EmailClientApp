@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EmailClientApp</string>
+    <string name="remover_duplicados">Remover Duplicados</string>
 </resources>

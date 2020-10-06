@@ -1,38 +1,34 @@
 package com.pedroborba.emailclientapp
 
-import android.content.*
+import android.content.ComponentName
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
-import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.pedroborba.adapter.EmailAdapter
 import com.pedroborba.model.LinkedList
-import com.pedroborba.model.User
-import kotlinx.android.synthetic.main.activity_main.*
+import com.pedroborba.model.LinkedList.Node
+import kotlinx.android.synthetic.main.activity_email_thread.*
 
-
-class MainActivity : AppCompatActivity(), MyBroadcastListener {
+class EmailThreadActivity : AppCompatActivity(), MyBroadcastListener {
 
     private var receiver = MyBroadcast(this)
     private var serviceIntent: Intent? = null
-    private lateinit var user: User
     private lateinit var lista: LinkedList
+    private val adapter = EmailAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        receiver
+        setContentView(R.layout.activity_email_thread)
+
         registerReceiver(receiver, IntentFilter("com.pedroborba.emailclientapp.ENVIAR_USUARIO"))
-
-        user = User("Pedro Borba ", 29)
-        lista = LinkedList()
-
-        btnSend.setOnClickListener {
-            updateUI()
-        }
+        updateUI()
     }
 
     override fun onStart() {
         super.onStart()
-
         callService()
     }
 
@@ -40,8 +36,6 @@ class MainActivity : AppCompatActivity(), MyBroadcastListener {
         serviceIntent = Intent()
 
         var bundle = Bundle()
-        var lista = loadList()
-        bundle.putSerializable("user", user)
         bundle.putParcelable("lista", lista)
 
         serviceIntent!!.putExtra("myBundle", bundle)
@@ -67,26 +61,40 @@ class MainActivity : AppCompatActivity(), MyBroadcastListener {
         return list
     }
 
-    override fun onPause() {
-        super.onPause()
-        unregisterReceiver(receiver);
-    }
+    fun linkedToList(lista: LinkedList) : ArrayList<Node> {
+        var listaNode : ArrayList<Node> = ArrayList<Node>()
 
-    override fun updateUser(user: User, lista: LinkedList) {
-        this.user = user
-        this.lista = lista
+        var node = lista?.head
+
+        while (node != null){
+            listaNode.add(node)
+            node = node.next
+        }
+
+        return listaNode
     }
 
     fun updateUI(){
-        var temp = lista.head
-        var result: String = user.name + " - " + user.idade + " "
-        while (temp != null){
-            result += temp.data.toString() + " - " + temp.title
-            temp = temp.next
+        lista = loadList()
+        var listaNode : ArrayList<Node> = linkedToList(lista)
+        adapter.data(listaNode)
+
+        rvEmail.apply {
+            layoutManager = LinearLayoutManager(this@EmailThreadActivity)
+            adapter = this@EmailThreadActivity.adapter
         }
 
-        txtUser.text = result
+        btnClear.setOnClickListener {
+            clearDuplicates()
+        }
     }
 
+    override fun updateLista(lista: LinkedList) {
+        this.lista = lista
+    }
 
+    fun clearDuplicates(){
+        var listaNode : ArrayList<Node> = linkedToList(this.lista)
+        adapter.data(listaNode)
+    }
 }
