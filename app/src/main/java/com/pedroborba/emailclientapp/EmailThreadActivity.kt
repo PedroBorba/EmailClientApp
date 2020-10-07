@@ -25,11 +25,10 @@ class EmailThreadActivity : AppCompatActivity(), MyBroadcastListener {
 
         registerReceiver(receiver, IntentFilter("com.pedroborba.emailclientapp.ENVIAR_USUARIO"))
         updateUI()
-    }
 
-    override fun onStart() {
-        super.onStart()
-        callService()
+        btnClear.setOnClickListener {
+            callService()
+        }
     }
 
     private fun callService(){
@@ -83,17 +82,10 @@ class EmailThreadActivity : AppCompatActivity(), MyBroadcastListener {
             layoutManager = LinearLayoutManager(this@EmailThreadActivity)
             adapter = this@EmailThreadActivity.adapter
         }
-
-        btnClear.setOnClickListener {
-            clearDuplicates()
-        }
     }
 
-    override fun updateLista(lista: LinkedList) {
+    override fun clearDuplicates(lista: LinkedList){
         this.lista = lista
-    }
-
-    fun clearDuplicates(){
         var listaNode : ArrayList<Node> = linkedToList(this.lista)
         adapter.data(listaNode)
     }

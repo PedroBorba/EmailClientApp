@@ -19,7 +19,7 @@ class MyBroadcast : BroadcastReceiver {
         var bundle = intent?.getParcelableExtra("myBundle") as Bundle
         lista = bundle.getParcelable<LinkedList>("lista") as LinkedList
 
-        listener.updateLista(lista)
+        listener.clearDuplicates(lista)
     }
 
 }
